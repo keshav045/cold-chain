@@ -1,0 +1,154 @@
+"""Export: CSV, JSON, SQL (SQLite db + schema.sql + seed.sql.gz), ground truth, manifest, checksums.
+
+Checksums are SHA-256 over the *uncompressed* content, so gzip/zlib versions never change them.
+No wall-clock timestamps are written anywhere (bit-for-bit reproducible output).
+"""
+from __future__ import annotations
+
+import gzip
+import hashlib
+import io
+import json
+import os
+import platform
+import sqlite3
+
+import numpy as np
+import pandas as pd
+
+from . import __version__, schema
+
+BIG = {"sensor_reading"}  # written gzip-compressed
+
+
+class _Hasher(io.RawIOBase):
+    """Text sink that forwards to a file object and hashes the uncompressed bytes."""
+
+    def __init__(self, sink):
+        self.sink, self.h, self.n = sink, hashlib.sha256(), 0
+
+    def writable(self):
+        return True
+
+    def write(self, b):
+        b = bytes(b)
+        self.h.update(b)
+        self.n += len(b)
+        self.sink.write(b)
+        return len(b)
+
+
+def _open(path, gz):
+    raw = open(path, "wb")
+    sink = gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0, compresslevel=6) if gz else raw
+    h = _Hasher(sink)
+    return raw, sink, h
+
+
+def _close(raw, sink):
+    if sink is not raw:
+        sink.close()
+    raw.close()
+
+
+def write_csv(df, path, gz=False):
+    raw, sink, h = _open(path, gz)
+    txt = io.TextIOWrapper(h, encoding="utf-8", newline="", write_through=True)
+    df.to_csv(txt, index=False, float_format="%.2f", lineterminator="\n", chunksize=100_000, na_rep="")
+    txt.flush()
+    _close(raw, sink)
+    return h.h.hexdigest()
+
+
+def write_json(df, path, gz=False, lines=False):
+    raw, sink, h = _open(path, gz)
+    txt = io.TextIOWrapper(h, encoding="utf-8", newline="", write_through=True)
+    d = df if lines else df.astype(object).where(df.notna(), None)
+    out = d.to_json(orient="records", lines=lines, force_ascii=False, double_precision=2)
+    if lines:  # JSON Lines: exactly one trailing newline, no blank last line (pandas versions differ)
+        out = out.rstrip("\n") + "\n"
+    txt.write(out)
+    txt.flush()
+    _close(raw, sink)
+    return h.h.hexdigest()
+
+
+def build_sqlite(tables, path):
+    if os.path.exists(path):
+        os.remove(path)
+    con = sqlite3.connect(path)
+    con.executescript(schema.ddl())
+    for t in schema.TABLES:
+        df = tables[t.name]
+        cols = schema.columns(t.name)
+        q = f"INSERT INTO {t.name} ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})"
+        for i in range(0, len(df), 100_000):
+            chunk = df.iloc[i:i + 100_000].astype(object)
+            chunk = chunk.where(chunk.notna(), None)
+            con.executemany(q, chunk.itertuples(index=False, name=None))
+    con.commit()
+    return con
+
+
+def export_all(result, out_dir, formats=("csv", "json", "sql")):
+    os.makedirs(out_dir, exist_ok=True)
+    files = {}  # relpath -> (rows, sha256_uncompressed)
+
+    def rec(rel, rows, sha):
+        files[rel] = {"rows": int(rows), "content_sha256": sha}
+
+    for name, df in result.tables.items():
+        big = name in BIG
+        rec(f"{name}.csv" + (".gz" if big else ""), len(df), write_csv(df, os.path.join(out_dir, f"{name}.csv" + (".gz" if big else "")), big))
+        if "json" in formats:
+            rel = f"{name}.jsonl.gz" if big else f"{name}.json"
+            rec(rel, len(df), write_json(df, os.path.join(out_dir, rel), gz=big, lines=big))
+    gt = result.ground_truth.copy()
+    # ground_truth.csv: `details` is serialised as a compact JSON *string* so it fits a CSV cell.
+    # ground_truth.json: `details` stays as a native nested object (JSON represents it natively).
+    gt["details"] = gt["details"].map(lambda d: json.dumps(d, sort_keys=True, separators=(",", ":")))
+    rec("ground_truth.csv", len(gt), write_csv(gt, os.path.join(out_dir, "ground_truth.csv")))
+    gj = result.ground_truth.copy()  # keep details as dict so JSON output is a proper nested object
+    rec("ground_truth.json", len(gj), write_json(gj, os.path.join(out_dir, "ground_truth.json")))
+
+    if "sql" in formats:
+        ddl_path = os.path.join(out_dir, "schema.sql")
+        with open(ddl_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(schema.ddl())
+        rec("schema.sql", 0, hashlib.sha256(schema.ddl().encode()).hexdigest())
+        db = os.path.join(out_dir, "coldchain.db")
+        con = build_sqlite(result.tables, db)
+        fk = con.execute("PRAGMA foreign_key_check").fetchall()
+        if fk:
+            raise RuntimeError(f"SQLite foreign_key_check failed: {fk[:3]}")
+        raw, sink, h = _open(os.path.join(out_dir, "seed.sql.gz"), True)
+        for line in con.iterdump():
+            h.write((line + "\n").encode())
+        _close(raw, sink)
+        con.close()
+        rec("seed.sql.gz", 0, h.h.hexdigest())
+
+    cfg = result.config
+    manifest = {
+        "generator": "coldchain-synth", "generator_version": __version__,
+        "data_source": "fully synthetic - generated by this repository; no external, licensed or personal data used",
+        "license_note": "No third-party data; nothing to attribute or redistribute under external terms.",
+        "seed": cfg["seed"], "scale": cfg["scale"], "simulation_start": "2026-01-01T00:00:00Z",
+        "generate_command": f"python -m coldchain generate --scale {cfg['scale']} --seed {cfg['seed']} --out <dir>",
+        "runtime": {
+            "python_version": platform.python_version(),
+            "numpy_version": np.__version__,
+            "pandas_version": pd.__version__,
+        },
+        "config": cfg,
+        "note": "SHA-256 is computed over uncompressed content. coldchain.db is a build artefact and is not checksummed.",
+        "files": [{"path": k, **v} for k, v in sorted(files.items())],
+    }
+    with open(os.path.join(out_dir, "source_manifest.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+        f.write("\n")
+    checks = {k: v["content_sha256"] for k, v in sorted(files.items())}
+    with open(os.path.join(out_dir, "checksums.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(checks, f, indent=2, sort_keys=True)
+        f.write("\n")
+    return files

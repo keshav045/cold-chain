@@ -1,0 +1,10 @@
+# Always use LF line endings in the repository (platform-independent)
+* text=auto eol=lf
+
+# Explicitly mark binary files so Git never corrupts them
+*.gz    binary
+*.db    binary
+*.sqlite binary
+*.png   binary
+*.jpg   binary
+*.pdf   binary

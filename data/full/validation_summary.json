@@ -1,0 +1,491 @@
+{
+  "checks": {
+    "excursion.duration": {
+      "description": "stored duration is not larger than / different from recomputed (shorter = DURATION_UNDERCOUNTED)",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "excursion.recomputed": {
+      "description": "excursions in the table equal the excursions recomputed from readings",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "excursion.values": {
+      "description": "end, peak, severity, evidence, cause, policy of each excursion equal the recomputed values",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "format.consistency": {
+      "description": "CSV, JSON/JSONL and SQLite exports hold the same rows (row counts and primary-key sets)",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "gap.flagged": {
+      "description": "every missing interval is listed in data_gap (never silently treated as safe)",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "gap.table_matches_readings": {
+      "description": "every data_gap row corresponds to a real missing interval",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "policy.sane": {
+      "description": "policy ranges ordered, durations multiple of 5, effective windows do not overlap",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.cadence": {
+      "description": "exact 5-minute cadence between consecutive readings (no duplicates, no overlap)",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.covers_trip": {
+      "description": "readings start at departure and end at arrival",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.id_format": {
+      "description": "reading_id = RDG-<sensor_id>-<timestamp>",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.no_duplicates": {
+      "description": "no two readings share the same (sensor_id, timestamp)",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.quality_flag": {
+      "description": "stored quality_flag equals the re-derived flag",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.route_stop": {
+      "description": "route_stop_id equals the stop the container is at (or NULL)",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.sensor_matches": {
+      "description": "reading sensor = the sensor of the shipment's container",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reading.shipment_known": {
+      "description": "every shipment has readings; every reading belongs to a shipment",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "reconcile.reading_counts": {
+      "description": "arithmetic reconciliation: readings present + missing_readings listed in data_gap = expected 5-minute slots of the trip",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "route.stops": {
+      "description": "3-5 stops, contiguous sequence, ORIGIN first, DESTINATION last, hubs between",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "route.times": {
+      "description": "stop times monotonic; delay_minutes = actual_arrival - planned_arrival",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.columns": {
+      "description": "every table has exactly the documented columns",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.enums": {
+      "description": "enumerated fields only hold allowed values",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.fk": {
+      "description": "every foreign key resolves to an existing parent row",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.format": {
+      "description": "ID, timestamp and date fields match their regex (zero-padded, immutable formats)",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.no_leakage": {
+      "description": "no input table contains ground-truth / scenario / issue columns",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.pk_unique": {
+      "description": "primary keys are unique",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.required": {
+      "description": "required fields are never null",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.types": {
+      "description": "int/real fields parse as numbers",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "schema.unique": {
+      "description": "unique fields (sensor.container_id, product.name) are unique",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "sensor.calibration_dates": {
+      "description": "calibration_due is after calibration_date",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "shipment.container_no_overlap": {
+      "description": "a container is never used by two shipments at the same time",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "shipment.matches_route": {
+      "description": "shipment actual times equal first departure / last arrival of its route",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "shipment.planned_order": {
+      "description": "planned_departure < planned_arrival",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "shipment.status": {
+      "description": "shipment status equals the worst excursion disposition",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "shipment.trip_length": {
+      "description": "trip length is 2-5 days",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "sqlite.foreign_key_check": {
+      "description": "PRAGMA foreign_key_check on coldchain.db",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "workflow.actions": {
+      "description": "corrective actions per trigger equal the documented rules; dates consistent",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "workflow.custody": {
+      "description": "custody events are ordered, complete, consistent with route and dispositions",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "workflow.notifications": {
+      "description": "notifications per trigger equal the documented routing rules",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    },
+    "workflow.status_history": {
+      "description": "status history is append-only, contiguous, uses allowed transitions, ends at the excursion status",
+      "examples": [],
+      "failures": 0,
+      "passed": true
+    }
+  },
+  "ground_truth_comparison": {
+    "by_issue_type": {
+      "CALIBRATION_FAILURE": {
+        "detected": 71,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 71,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 71
+      },
+      "DELIVERY_BEFORE_DEPARTURE": {
+        "detected": 15,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 15,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 15
+      },
+      "DURATION_UNDERCOUNTED": {
+        "detected": 19,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 19,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 19
+      },
+      "EXCURSION_BRIEF": {
+        "detected": 202,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 202,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 202
+      },
+      "EXCURSION_CRITICAL": {
+        "detected": 40,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 40,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 40
+      },
+      "EXCURSION_PROLONGED": {
+        "detected": 129,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 129,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 129
+      },
+      "OUT_OF_PHYSICAL_RANGE": {
+        "detected": 100,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 100,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 100
+      },
+      "ROUTE_DELAY": {
+        "detected": 80,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 80,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 80
+      },
+      "SENSOR_DROPOUT_GAP": {
+        "detected": 157,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 157,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 157
+      },
+      "WRONG_POLICY": {
+        "detected": 15,
+        "examples_fn": [],
+        "examples_fp": [],
+        "expected": 15,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 15
+      }
+    },
+    "overall": {
+      "false_negative": 0,
+      "false_positive": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "true_positive": 828
+    }
+  },
+  "hard_failures": 0,
+  "metrics": {
+    "containers_used": 293,
+    "dropout_gaps": 157,
+    "excursion_rate_by_product": {
+      "Fresh Berries": {
+        "excursion_rate": 0.34,
+        "shipments": 150,
+        "shipments_with_excursion": 51
+      },
+      "Fresh Dairy": {
+        "excursion_rate": 0.315,
+        "shipments": 130,
+        "shipments_with_excursion": 41
+      },
+      "Frozen Plasma": {
+        "excursion_rate": 0.322,
+        "shipments": 121,
+        "shipments_with_excursion": 39
+      },
+      "Frozen Seafood": {
+        "excursion_rate": 0.359,
+        "shipments": 117,
+        "shipments_with_excursion": 42
+      },
+      "Ice Cream": {
+        "excursion_rate": 0.282,
+        "shipments": 117,
+        "shipments_with_excursion": 33
+      },
+      "Insulin Pens": {
+        "excursion_rate": 0.322,
+        "shipments": 121,
+        "shipments_with_excursion": 39
+      },
+      "Leafy Greens": {
+        "excursion_rate": 0.333,
+        "shipments": 126,
+        "shipments_with_excursion": 42
+      },
+      "Seasonal Flu Vaccine": {
+        "excursion_rate": 0.331,
+        "shipments": 118,
+        "shipments_with_excursion": 39
+      }
+    },
+    "excursions": {
+      "by_cause": {
+        "ROUTE_DELAY": 46,
+        "UNKNOWN_IN_TRANSIT": 325
+      },
+      "by_metric": {
+        "HUMIDITY": 51,
+        "TEMPERATURE": 320
+      },
+      "by_severity": {
+        "BRIEF": 202,
+        "CRITICAL": 40,
+        "PROLONGED": 129
+      },
+      "duration_minutes_percentiles": {
+        "p10": 10.0,
+        "p50": 50.0,
+        "p90": 165.0,
+        "p99": 427.00000000000045
+      },
+      "total": 371
+    },
+    "missing_readings_total": 3276,
+    "quality_flags": {
+      "GOOD": 956150,
+      "LOW_TRUST": 43413,
+      "SENSOR_FAULT": 100
+    },
+    "reading_coverage_pct": 99.673,
+    "row_counts": {
+      "container": 300,
+      "corrective_action": 832,
+      "custody_event": 6322,
+      "data_gap": 157,
+      "excursion": 371,
+      "excursion_status_history": 1282,
+      "notification": 1001,
+      "product": 8,
+      "route_stop": 3992,
+      "sensor": 300,
+      "sensor_reading": 999663,
+      "shipment": 1000,
+      "threshold_policy": 16
+    },
+    "shipment_status": {
+      "DELIVERED": 831,
+      "REJECTED": 97,
+      "RELEASED_AFTER_HOLD": 72
+    },
+    "shipments": 1000,
+    "shipments_per_container_mean": 3.41,
+    "temperature_c_by_product": {
+      "Fresh Berries": {
+        "mean": 2.02,
+        "std": 0.39
+      },
+      "Fresh Dairy": {
+        "mean": 3.02,
+        "std": 0.35
+      },
+      "Frozen Plasma": {
+        "mean": -24.96,
+        "std": 0.54
+      },
+      "Frozen Seafood": {
+        "mean": -21.45,
+        "std": 0.61
+      },
+      "Ice Cream": {
+        "mean": -21.95,
+        "std": 0.62
+      },
+      "Insulin Pens": {
+        "mean": 5.03,
+        "std": 0.36
+      },
+      "Leafy Greens": {
+        "mean": 3.03,
+        "std": 0.42
+      },
+      "Seasonal Flu Vaccine": {
+        "mean": 5.02,
+        "std": 0.36
+      }
+    },
+    "trip_days": {
+      "max": 4.98,
+      "mean": 3.48,
+      "min": 2.0
+    }
+  },
+  "ok": true
+}

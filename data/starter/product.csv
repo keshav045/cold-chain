@@ -1,0 +1,9 @@
+product_id,name,category,target_temp_c,target_rh_pct
+PRD-0001,Seasonal Flu Vaccine,VACCINE,5.00,50.00
+PRD-0002,Insulin Pens,PHARMA_COLD,5.00,50.00
+PRD-0003,Frozen Seafood,FROZEN_FOOD,-21.50,60.00
+PRD-0004,Ice Cream,FROZEN_FOOD,-22.00,60.00
+PRD-0005,Fresh Dairy,CHILLED_FOOD,3.00,65.00
+PRD-0006,Leafy Greens,PRODUCE,3.00,91.00
+PRD-0007,Fresh Berries,PRODUCE,2.00,90.00
+PRD-0008,Frozen Plasma,FROZEN_PHARMA,-25.00,42.50
