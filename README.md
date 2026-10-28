@@ -20,7 +20,7 @@ an ERD, a source manifest, checksums and a validation summary. No UI, no externa
 ### Universal (Recommended for all platforms: Windows, macOS, Linux)
 
 ```bash
-git clone <this repo> && cd cold-chain-synth
+git clone https://github.com/keshav045/cold-chain.git && cd cold-chain
 pip install -e .
 
 pytest                                              # 38 tests (unit, property and mutation tests)
